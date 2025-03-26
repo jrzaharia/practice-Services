@@ -1,21 +1,28 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, inject, OnInit } from '@angular/core';
+import { LoggingService } from '../logging.service';
+import { AccountsService } from '../accounts.service';
 
 @Component({
   selector: 'app-new-account',
   imports: [],
   templateUrl: './new-account.component.html',
-  styleUrl: './new-account.component.css'
+  styleUrl: './new-account.component.css',
 })
-export class NewAccountComponent {
-  @Output() accountAdded = new EventEmitter<{ name: string; status: string }>();
+export class NewAccountComponent implements OnInit {
+  accountService = inject(AccountsService);
+  para: string = '';
+  // logService = inject(LoggingService);
 
   constructor() {}
 
+  ngOnInit(): void {
+    this.accountService.statusUpdated.subscribe(
+      (data: string) => (this.para = data)
+    );
+  }
+
   onCreateAccount(accountName: string, accountStatus: string) {
-    this.accountAdded.emit({
-      name: accountName,
-      status: accountStatus,
-    });
-    console.log(`A status change occured, the new status is ${accountStatus}`);
+    this.accountService.addAccount(accountName, accountStatus);
+    // this.logService.logStatusChange(accountStatus);
   }
 }
